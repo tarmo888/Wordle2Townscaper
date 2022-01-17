@@ -131,6 +131,8 @@
 				let rawRows = document.querySelector('#tweetContent').value.trim().split("\n");
 				let rows = [];
 				for (let i=0; i<rawRows.length; i++) {
+					rawRows[i] = rawRows[i].replaceAll('🟧', '🟩').replaceAll('🟦', '🟨');
+					rawRows[i] = rawRows[i].replaceAll('Orange square', '🟩').replaceAll('Blue square', '🟨');
 					rawRows[i] = rawRows[i].replaceAll('Green square', '🟩').replaceAll('Yellow square', '🟨');
 					let cols = [...rawRows[i]];
 					if (cols.length == MAX_COLS) {
