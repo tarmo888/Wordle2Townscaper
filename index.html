@@ -143,7 +143,7 @@
 					rawRows[i] = rawRows[i].replaceAll('🟧', '🟩').replaceAll('🟦', '🟨');
 					rawRows[i] = rawRows[i].replaceAll('Orange square', '🟩').replaceAll('Blue square', '🟨');
 					rawRows[i] = rawRows[i].replaceAll('Green square', '🟩').replaceAll('Yellow square', '🟨');
-					let cols = [...rawRows[i]];
+					let cols = [...rawRows[i].trim()];
 					if (cols.length == MAX_COLS) {
 						rows.push(cols);
 					}
