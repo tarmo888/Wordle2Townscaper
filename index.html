@@ -36,6 +36,11 @@
 			#townscaperLink {
 				word-break: break-word;
 			}
+			@media (max-width:300px){
+				#grid .col {
+					padding-right: 0;
+				}
+			}
 		</style>
 		<script async src="https://www.googletagmanager.com/gtag/js?id=G-1ZYNS1D69J"></script>
 		<script>
@@ -70,12 +75,16 @@
 					<div id="grid"></div>
 					<div class="mt-2 form-check">
 						<input type="checkbox" class="form-check-input" id="fillGaps" value="1">
-						<label class="form-check-label" for="fillGaps">Fill wall gaps</label>
+						<label class="form-check-label" for="fillGaps" title="Fills empty blocks with white wall">Fill gaps on walls</label>
+					</div>
+					<div class="mt-2 form-check">
+						<input type="checkbox" class="form-check-input" id="removeGaps" value="1">
+						<label class="form-check-label" for="removeGaps" title="Removes all empty blocks after full green row">Remove gaps on ground</label>
 					</div>
 					<div class="mt-2">
 						<button id="generateTownscaper" type="button" class="btn btn-primary mb-2">Generate</button>
 						<div class="mt-2 mb-4">
-							<a id="townscaperLink" href="https://oskarstalberg.com/Townscaper/#FCIfgnPf_c" target="_blank">https://oskarstalberg.com/Townscaper/#FCIfgnPf_c</a>
+							<a id="townscaperLink" href="https://oskarstalberg.com/Townscaper/#FCIfgnPf_c" target="_blank">oskarstalberg.com/Townscaper/#FCIfgnPf_c</a>
 						</div>
 					</div>
 				</div>
@@ -164,22 +173,38 @@
 					});
 				}
 				const FILL_GAPS = !!document.querySelector('#fillGaps:checked');
+				const REMOVE_GAPS = !!document.querySelector('#removeGaps:checked');
 				let gridButtons = document.querySelectorAll('#grid button');
+				let buildingBlocks = [];
+				let successCount = [];
 				let sparse = [];
 				let x = 9;
 				let y = -9;
-				let z = 0;
-				let floor;
 				for (let z=0; z<MAX_COLS; z++) {
 					sparse[z] = {'x':x*(z+1), 'y':y, 'voxels':{0:15}};
 				}
 				for (let i=0; i<gridButtons.length; i++) {
-					z = i % MAX_COLS;
-					floor = MAX_ROWS-parseInt(i/MAX_COLS);
+					let floor = MAX_ROWS-parseInt(i/MAX_COLS);
+					if (parseInt(gridButtons[i].value) == 5) {
+						if (!successCount[floor]) {
+							successCount[floor] = 1;
+						}
+						else {
+							successCount[floor]++;
+						}
+					}
+					buildingBlocks.push(gridButtons[i]);
+					if (REMOVE_GAPS && successCount[floor] && successCount[floor] == MAX_COLS) {
+						break;
+					}
+				}
+				for (let i=0; i<buildingBlocks.length; i++) {
+					let z = i % MAX_COLS;
+					let floor = parseInt(buildingBlocks.length/MAX_COLS)-parseInt(i/MAX_COLS);
+					let color = parseInt(buildingBlocks[i].value);
 					if (!sparse[z]) {
 						sparse[z] = {'x':x*(z+1), 'y':y, 'voxels':{}};
 					}
-					let color = parseInt(gridButtons[i].value);
 					if (!color) {
 						if (FILL_GAPS) {
 							if (!floor) {
@@ -195,19 +220,16 @@
 					}
 				}
 				let url = 'https://oskarstalberg.com/Townscaper/#' + sparseToClip(sparse)
-				document.querySelector('#townscaperLink').innerText = url;
+				document.querySelector('#townscaperLink').innerText = url.replace('https://', '');
 				document.querySelector('#townscaperLink').setAttribute('href', url);
 			});
 			let grid = document.querySelector('#grid');
 			for (let i=0; i<MAX_ROWS; i++) {
 				let row = document.createElement('div');
 				row.className = 'row';
-				row.innerHTML = `
-					<div class="col"><button value="0"></button></div>
-					<div class="col"><button value="0"></button></div>
-					<div class="col"><button value="0"></button></div>
-					<div class="col"><button value="0"></button></div>
-					<div class="col"><button value="0"></button></div>`;
+				for (let j=0; j<MAX_COLS; j++) {
+					row.innerHTML = row.innerHTML + '<div class="col"><button value="0"></button></div>';
+				}
 				grid.appendChild(row);
 			}
 			let gridButtons = document.querySelectorAll('#grid button');
