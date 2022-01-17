@@ -88,6 +88,13 @@
 			document.querySelector('#fetchUrl').addEventListener('click', function() {
 				let tweetMatch = document.querySelector('#twitterAddress').value.trim().match(/\/status\/(\d+)/);
 				if (tweetMatch) {
+					if (typeof gtag === 'function') {
+						gtag('event', 'click', {
+							'event_category' : 'button',
+							'event_label' : 'fetchUrl',
+							'value': 1
+						});
+					}
 					document.querySelector('#tweetContent').value = '';
 					let url = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://cdn.syndication.twimg.com/tweet?id='+tweetMatch[1]);
 					fetch(url).then(response => {
@@ -100,10 +107,23 @@
 					}).catch(message => alert);
 				}
 				else {
+					if (typeof gtag === 'function') {
+						gtag('event', 'click', {
+							'event_category' : 'button',
+							'event_label' : 'fetchUrl',
+							'value': 0
+						});
+					}
 					alert('Not valid tweet address');
 				}
 			});
 			document.querySelector('#parseContents').addEventListener('click', function() {
+				if (typeof gtag === 'function') {
+					gtag('event', 'click', {
+						'event_category' : 'button',
+						'event_label' : 'parseContents'
+					});
+				}
 				let gridButtons = document.querySelectorAll('#grid button');
 				gridButtons.forEach(function(button) {
 					button.value = 0;
@@ -135,6 +155,12 @@
 				});
 			});
 			document.querySelector('#generateTownscaper').addEventListener('click', function() {
+				if (typeof gtag === 'function') {
+					gtag('event', 'click', {
+						'event_category' : 'button',
+						'event_label' : 'generateTownscaper'
+					});
+				}
 				const FILL_GAPS = !!document.querySelector('#fillGaps:checked');
 				let gridButtons = document.querySelectorAll('#grid button');
 				let sparse = [];
@@ -185,6 +211,12 @@
 			let gridButtons = document.querySelectorAll('#grid button');
 			gridButtons.forEach(function(button) {
 				button.addEventListener("click", function() {
+					if (typeof gtag === 'function') {
+						gtag('event', 'click', {
+							'event_category' : 'button',
+							'event_label' : 'grid'
+						});
+					}
 					if (button.value == 0) {
 						button.value = 2;
 					}
