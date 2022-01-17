@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Wordle2Townscaper</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="format-detection" content="telephone=no">
+		<meta property="og:title" content="Wordle2Townscaper">
+		<meta property="og:type" content="website">
+		<meta property="og:url" content="https://tarmo888.github.io/Wordle2Townscaper/">
+		<meta property="og:image" content="https://tarmo888.github.io/Wordle2Townscaper/twitter2github.png">
+		<meta property="og:description" content="Wordle2Townscaper to is meant to translate Wordle tweets into Townscaper houses using yellow and green building blocks." />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+		<script src="https://cdn.jsdelivr.net/npm/require-stub@2.2.4/index.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/townsclipper@0.2.0/lib/index.min.js"></script>
+		<style>
+			body {
+				background-color: #efefef;
+			}
+			input {
+				font-size: 0.9rem !important;
+			}
+			#grid button {
+				border: 0;
+			}
+			#grid button:after {
+				content:"⬛";
+			}
+			#grid button[value="2"]:after {
+				content:"🟨";
+			}
+			#grid button[value="5"]:after {
+				content:"🟩";
+			}
+		</style>
+	</head>
+	<body>
+		<a href="https://github.com/tarmo888/Wordle2Townscaper" target="_blank" class="github-corner fixed-top" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; left: 0; transform: scale(-1, 1);" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style></a>
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-lg-4 col-md-6">
+					<h1>Wordle2Townscaper</h1>
+					<div class="mb-4">
+						<label for="twitterAddress" class="form-label">Tweet address</label>
+						<input type="url" class="form-control" id="twitterAddress" aria-describedby="urlHelp" value="">
+						<div id="urlHelp" class="form-text">Paste tweet address to fetch content from</div>
+						<button id="fetchUrl" type="button" class="btn btn-primary mt-2">Fetch</button>
+					</div>
+					<div class="mb-4">
+						<label for="tweetContent" class="form-label">Tweet contents</label>
+						<textarea class="form-control" id="tweetContent" rows="9"></textarea>
+						<div id="contentHelp" aria-describedby="parseContents" class="form-text">or paste tweet content for parsing</div>
+						<button id="parseContents" type="button" class="btn btn-primary mt-2">Parse</button>
+					</div>
+				</div>
+			</div>
+			<div class="row justify-content-center">
+				<div class="col-lg-4 col-md-6">
+					<div id="grid"></div>
+					<div class="mt-2 form-check">
+						<input type="checkbox" class="form-check-input" id="fillGaps" value="1">
+						<label class="form-check-label" for="fillGaps">Fill wall gaps</label>
+					</div>
+					<div class="mt-2">
+						<button id="generateTownscaper" type="button" class="btn btn-primary mb-2">Generate</button>
+						<div>
+							<a id="townscaperLink" href="https://oskarstalberg.com/Townscaper/#FCIfgnPf_c" target="_blank">https://oskarstalberg.com/Townscaper/#FCIfgnPf_c</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			const MAX_ROWS = 6;
+			const MAX_COLS = 5;
+			document.querySelector('#fetchUrl').addEventListener('click', function() {
+				let tweetMatch = document.querySelector('#twitterAddress').value.trim().match(/\/status\/(\d+)/);
+				if (tweetMatch) {
+					document.querySelector('#tweetContent').value = '';
+					let url = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://cdn.syndication.twimg.com/tweet?id='+tweetMatch[1]);
+					fetch(url).then(response => {
+                      if (response.ok) return response.json();
+                      throw new Error('Network response was not ok.')
+                    })
+                    .then(data => JSON.parse(data.contents))
+                    .then(data => {
+						document.querySelector('#tweetContent').value = data.text;
+					}).catch(message => alert);
+				}
+				else {
+					alert('Not valid tweet address');
+				}
+			});
+			document.querySelector('#parseContents').addEventListener('click', function() {
+				let gridButtons = document.querySelectorAll('#grid button');
+				gridButtons.forEach(function(button) {
+					button.value = 0;
+				});
+				let rawRows = document.querySelector('#tweetContent').value.trim().split("\n");
+				let rows = [];
+				for (let i=0; i<rawRows.length; i++) {
+					rawRows[i] = rawRows[i].replaceAll('Green square', '🟩').replaceAll('Yellow square', '🟨');
+					let cols = [...rawRows[i]];
+					if (cols.length == MAX_COLS) {
+						rows.push(cols);
+					}
+					if (rows.length == MAX_ROWS) {
+						break;
+					}
+				}
+				let currentRow = 0;
+				rows.forEach(function(cols) {
+					for (let i=0; i<cols.length; i++) {
+						let index = currentRow*cols.length+i;
+						if (cols[i] == '🟩') {
+							document.querySelectorAll('#grid button')[index].value = 5;
+						}
+						else if (cols[i] == '🟨') {
+							document.querySelectorAll('#grid button')[index].value = 2;
+						}
+					}
+					currentRow++;
+				});
+			});
+			document.querySelector('#generateTownscaper').addEventListener('click', function() {
+				const FILL_GAPS = !!document.querySelector('#fillGaps:checked');
+				let gridButtons = document.querySelectorAll('#grid button');
+				let sparse = [];
+				let x = 9;
+				let y = -9;
+				let z = 0;
+				let floor;
+				for (let z=0; z<MAX_COLS; z++) {
+					sparse[z] = {'x':x*(z+1), 'y':y, 'voxels':{0:15}};
+				}
+				for (let i=0; i<gridButtons.length; i++) {
+					z = i % MAX_COLS;
+					floor = MAX_ROWS-parseInt(i/MAX_COLS);
+					if (!sparse[z]) {
+						sparse[z] = {'x':x*(z+1), 'y':y, 'voxels':{}};
+					}
+					let color = parseInt(gridButtons[i].value);
+					if (!color) {
+						if (FILL_GAPS) {
+							if (!floor) {
+								sparse[z]['voxels'][floor] = 15;
+							}
+							else {
+								sparse[z]['voxels'][floor] = 14;
+							}
+						}
+					}
+					else {
+						sparse[z]['voxels'][floor] = color;
+					}
+				}
+				let url = 'https://oskarstalberg.com/Townscaper/#' + sparseToClip(sparse)
+				document.querySelector('#townscaperLink').innerText = url;
+				document.querySelector('#townscaperLink').setAttribute('href', url);
+			});
+			let grid = document.querySelector('#grid');
+			for (let i=0; i<MAX_ROWS; i++) {
+				let row = document.createElement('div');
+				row.className = 'row';
+				row.innerHTML = `
+					<div class="col"><button value="0"></button></div>
+					<div class="col"><button value="0"></button></div>
+					<div class="col"><button value="0"></button></div>
+					<div class="col"><button value="0"></button></div>
+					<div class="col"><button value="0"></button></div>`;
+				grid.appendChild(row);
+			}
+			let gridButtons = document.querySelectorAll('#grid button');
+			gridButtons.forEach(function(button) {
+				button.addEventListener("click", function() {
+					if (button.value == 0) {
+						button.value = 2;
+					}
+					else if (button.value == 2) {
+						button.value = 5;
+					}
+					else {
+						button.value = 0;
+					}
+				});
+			});
+		</script>
+	</body>
+</html>
