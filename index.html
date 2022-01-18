@@ -86,7 +86,16 @@
 						<label class="form-check-label" for="removeGaps" title="Removes all empty blocks after full green row">Remove gaps on ground</label>
 					</div>
 					<div class="mt-2">
-						<button id="generateTownscaper" type="button" class="btn btn-primary mb-2">Generate</button>
+						<div class="input-group mb-3">
+							<div class="input-group-prepend">
+								<button id="generateTownscaper" class="btn btn-primary" type="button">Generate</button>
+							</div>
+							<input id="codeDisplay" type="text" class="form-control" value="FCIfgnPf_c" readonly="readonly">
+							<input id="codeForCopy" type="hidden" value="FCIfgnPf_c">
+							<div class="input-group-append">
+								<button id="copyButton" class="btn btn-outline-secondary" type="button" title="Copy to Clipboard">Copy</button>
+							</div>
+						</div>
 						<div class="mt-2 mb-4">
 							<a id="townscaperLink" href="https://oskarstalberg.com/Townscaper/#FCIfgnPf_c" target="_blank">oskarstalberg.com/Townscaper/#FCIfgnPf_c</a>
 						</div>
@@ -223,9 +232,39 @@
 						sparse[z]['voxels'][floor] = color;
 					}
 				}
-				let url = 'https://oskarstalberg.com/Townscaper/#' + sparseToClip(sparse)
-				document.querySelector('#townscaperLink').innerText = url.replace('https://', '');
-				document.querySelector('#townscaperLink').setAttribute('href', url);
+				let code = sparseToClip(sparse);
+				document.querySelector('#codeDisplay').value = code;
+				document.querySelector('#codeForCopy').value = code;
+				document.querySelector('#townscaperLink').innerText = 'oskarstalberg.com/Townscaper/#' + code;
+				document.querySelector('#townscaperLink').setAttribute('href', 'https://oskarstalberg.com/Townscaper/#' + code);
+			});
+			document.querySelector('#copyButton').addEventListener('click', function() {
+				let input = document.querySelector('#codeForCopy');
+				try {
+					input.type = 'text';
+					input.select();
+					input.setSelectionRange(0, input.value.length + 1);
+					document.execCommand('copy');
+					input.type = 'hidden';
+					if (typeof gtag === 'function') {
+						gtag('event', 'click', {
+							'event_category' : 'button',
+							'event_label' : 'copyButton',
+							'value': 1
+						});
+					}
+				}
+				catch (err) {
+					input.type = 'hidden';
+					if (typeof gtag === 'function') {
+						gtag('event', 'click', {
+							'event_category' : 'button',
+							'event_label' : 'copyButton',
+							'value': 0
+						});
+					}
+					alert(err);
+				}
 			});
 			let grid = document.querySelector('#grid');
 			for (let i=0; i<MAX_ROWS; i++) {
