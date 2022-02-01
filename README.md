@@ -17,3 +17,9 @@ MIT
 * https://github.com/tholman/github-corners
 * https://github.com/twbs/bootstrap
 * https://allorigins.win/
+
+## Donations
+* [Github](https://github.com/sponsors/tarmo888)
+* [PayPal](https://www.paypal.me/tarmo888)
+
+[![Kivach](https://kivach.org/api/banner?repo=tarmo888/wordle2townscaper)](https://kivach.org/repo/tarmo888/wordle2townscaper)
