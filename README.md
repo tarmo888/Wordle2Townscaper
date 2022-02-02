@@ -13,6 +13,8 @@ This tool uses embedded tweet API to download (using proxy do avoid CORS) tweet 
 MIT
 
 ## Thanks
+* https://www.powerlanguage.co.uk/wordle/
+* https://www.townscapergame.com/
 * https://github.com/alvaro-cuesta/townsclipper
 * https://github.com/tholman/github-corners
 * https://github.com/twbs/bootstrap
