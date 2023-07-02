@@ -118,7 +118,7 @@
 						});
 					}
 					document.querySelector('#tweetContent').value = '';
-					let url = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://cdn.syndication.twimg.com/tweet?id='+tweetMatch[1]);
+					let url = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://cdn.syndication.twimg.com/tweet-result?id='+tweetMatch[1]);
 					fetch(url).then(response => {
 						if (response.ok) return response.json();
 						throw new Error('Network response was not ok.');
